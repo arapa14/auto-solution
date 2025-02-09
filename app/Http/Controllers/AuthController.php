@@ -18,7 +18,7 @@ class AuthController extends Controller
         $validator = Validator::make($request->all(), [
             'name'     => 'required|string|max:255',
             'email'    => 'required|email|unique:users,email',
-            'password' => 'required|string|min:6|confirmed', // pastikan field password_confirmation tersedia di form
+            'password' => 'required|string|min:6|confirmed',
             'phone'    => 'required|string',
             'address'  => 'required|string',
         ]);
@@ -30,7 +30,6 @@ class AuthController extends Controller
         }
 
         try {
-            // Membuat user baru. Perhatikan bahwa field role tidak disertakan karena akan di-set secara default sebagai 'user'
             $user = User::create([
                 'name'     => $request->name,
                 'email'    => $request->email,
@@ -39,9 +38,9 @@ class AuthController extends Controller
                 'address'  => $request->address,
             ]);
 
-            // Opsional: login otomatis setelah registrasi
             Auth::login($user);
-
+            // Tambahkan flash message untuk pendaftaran
+            session()->flash('success_register', 'Pendaftaran berhasil! Selamat datang, ' . $user->name);
             return $this->redirectBasedOnRole($user);
         } catch (\Exception $e) {
             return redirect()->route('landing')
@@ -49,6 +48,7 @@ class AuthController extends Controller
                 ->withInput();
         }
     }
+
 
     /**
      * Fungsi untuk melakukan proses login.
@@ -71,14 +71,17 @@ class AuthController extends Controller
 
         if (Auth::attempt($credentials)) {
             $user = Auth::user();
+            // Gunakan key flash yang konsisten, misalnya 'success_login'
+            session()->flash('success_login', 'Login berhasil! Selamat datang, ' . $user->name);
             return $this->redirectBasedOnRole($user);
         }
 
-        // Jika kredensial tidak valid, kembalikan ke halaman landing dengan pesan error
+        // Jika kredensial tidak valid
         return redirect()->route('landing')
             ->withErrors(['error' => 'Email atau password tidak valid.'])
             ->withInput();
     }
+
 
     /**
      * Fungsi untuk logout user.
@@ -89,8 +92,12 @@ class AuthController extends Controller
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 
+        // Tambahkan flash message logout
+        session()->flash('success_logout', 'Logout berhasil! Sampai jumpa lagi.');
+
         return redirect()->route('landing');
     }
+
 
     /**
      * Fungsi pembantu untuk mengarahkan user berdasarkan role-nya.

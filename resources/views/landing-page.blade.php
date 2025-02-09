@@ -9,10 +9,17 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <!-- Alpine.js untuk interaktivitas -->
     <script src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+    <!-- SweetAlert2 -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <style>
+        /* Tambahan styling untuk modal overlay (jika diperlukan) */
+        [x-cloak] {
+            display: none !important;
+        }
+    </style>
 </head>
-<!-- Gunakan Alpine.js di level body untuk mengatur modal login/register -->
 
-<body x-data="{ showModal: false, isLogin: true }" class="font-sans antialiased">
+<body x-data="{ loginModal: false, registerModal: false }" class="font-sans antialiased">
     <!-- Header / Navbar -->
     <header class="bg-white shadow">
         <div class="container mx-auto px-4 py-6 flex items-center justify-between">
@@ -24,10 +31,20 @@
                 <a href="/pembelian" class="text-gray-600 hover:text-gray-800">Pembelian Alat-Alat Mobil</a>
                 <a href="/penjualan" class="text-gray-600 hover:text-gray-800">Penjualan Alat-Alat Mobil</a>
                 <a href="/jasa-perbaikan" class="text-gray-600 hover:text-gray-800">Jasa Perbaikan Mobil</a>
-                <button @click="showModal = true; isLogin = true"
-                    class="text-gray-600 hover:text-gray-800 focus:outline-none">
-                    Login/Register
-                </button>
+                @auth
+                    <!-- Jika sudah login, tampilkan tombol Logout -->
+                    <form action="{{ route('logout') }}" method="POST">
+                        @csrf
+                        <button type="submit" class="text-gray-600 hover:text-gray-800 focus:outline-none">
+                            Logout
+                        </button>
+                    </form>
+                @else
+                    <!-- Jika belum login, tampilkan tombol Login/Register -->
+                    <button @click="loginModal = true" class="text-gray-600 hover:text-gray-800 focus:outline-none">
+                        Login/Register
+                    </button>
+                @endauth
             </nav>
             <!-- Mobile Menu -->
             <div x-data="{ open: false }" class="md:hidden relative">
@@ -58,12 +75,24 @@
                             Jasa Perbaikan Mobil
                         </a>
                     </li>
-                    <li>
-                        <button @click="showModal = true; isLogin = true; open = false"
-                            class="block w-full text-left px-4 py-2 text-gray-600 hover:bg-gray-100">
-                            Login/Register
-                        </button>
-                    </li>
+                    @auth
+                        <li>
+                            <form action="{{ route('logout') }}" method="POST">
+                                @csrf
+                                <button type="submit"
+                                    class="block w-full text-left px-4 py-2 text-gray-600 hover:bg-gray-100">
+                                    Logout
+                                </button>
+                            </form>
+                        </li>
+                    @else
+                        <li>
+                            <button @click="loginModal = true; open = false"
+                                class="block w-full text-left px-4 py-2 text-gray-600 hover:bg-gray-100">
+                                Login/Register
+                            </button>
+                        </li>
+                    @endauth
                 </ul>
             </div>
         </div>
@@ -91,7 +120,7 @@
         </div>
     </section>
 
-    <!-- Contoh Section Lain (Tentang, Fitur, Hubungi, dll.) -->
+    <!-- Section Tentang -->
     <section id="tentang" class="container mx-auto px-4 py-20">
         <div class="text-center mb-12">
             <h2 class="text-3xl font-bold text-gray-800">Tentang BengkelExpress</h2>
@@ -172,114 +201,145 @@
         </div>
     </footer>
 
-    <!-- Modal Login/Register -->
-    <div x-show="showModal" class="fixed inset-0 flex items-center justify-center z-50" x-cloak>
+    <!-- Modal Login (menggunakan Tailwind CSS & Alpine.js) -->
+    <div x-show="loginModal" x-cloak class="fixed inset-0 z-50 flex items-center justify-center">
         <!-- Overlay -->
-        <div class="absolute inset-0 bg-black opacity-50"></div>
-        <!-- Modal Container -->
-        <div class="bg-white rounded-lg shadow-lg overflow-hidden z-50 max-w-md w-full">
-            <!-- Header Modal -->
-            <div class="p-4 flex justify-between items-center border-b">
-                <h2 class="text-xl font-bold" x-text="isLogin ? 'Login' : 'Register'"></h2>
-                <button @click="showModal = false"
-                    class="text-gray-600 hover:text-gray-800 text-2xl leading-none">&times;</button>
-            </div>
-            <!-- Body Modal -->
-            <div class="p-4">
-                <!-- Tampilkan Semua Error Jika Ada -->
-                @if ($errors->any())
-                    <div class="bg-red-500 text-white p-3 rounded mb-4">
-                        <ul>
-                            @foreach ($errors->all() as $error)
-                                <li>{{ $error }}</li>
-                            @endforeach
-                        </ul>
-                    </div>
-                @endif
-
-                <!-- Tab Navigation -->
-                <div class="mb-4 flex">
-                    <button @click="isLogin = true"
-                        :class="{ 'border-b-2 border-blue-600 text-blue-600': isLogin, 'text-gray-600': !isLogin }"
-                        class="flex-1 py-2 text-center focus:outline-none">
+        <div class="fixed inset-0 bg-gray-900 opacity-50" @click="loginModal = false"></div>
+        <!-- Modal Content -->
+        <div class="bg-white rounded-lg shadow-lg z-50 p-6 w-full max-w-md mx-auto">
+            <h2 class="text-2xl font-bold mb-4">Login</h2>
+            <form action="{{ route('login') }}" method="POST">
+                @csrf
+                <div class="mb-4">
+                    <label class="block text-gray-700 text-sm font-bold mb-2" for="login_email">Email</label>
+                    <input type="email" name="email" id="login_email" required
+                        class="w-full px-3 py-2 border rounded focus:outline-none focus:ring focus:border-blue-300">
+                </div>
+                <div class="mb-4">
+                    <label class="block text-gray-700 text-sm font-bold mb-2" for="login_password">Password</label>
+                    <input type="password" name="password" id="login_password" required
+                        class="w-full px-3 py-2 border rounded focus:outline-none focus:ring focus:border-blue-300">
+                </div>
+                <div class="flex items-center justify-between">
+                    <button type="submit"
+                        class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition duration-200">
                         Login
                     </button>
-                    <button @click="isLogin = false"
-                        :class="{ 'border-b-2 border-blue-600 text-blue-600': !isLogin, 'text-gray-600': isLogin }"
-                        class="flex-1 py-2 text-center focus:outline-none">
-                        Register
+                    <button type="button" @click="loginModal = false"
+                        class="text-gray-600 hover:text-gray-800 focus:outline-none">
+                        Batal
                     </button>
                 </div>
-
-                <!-- Form Login -->
-                <form action="{{ route('login') }}" method="POST" x-show="isLogin" @submit.prevent="$el.submit()"
-                    x-cloak>
-                    @csrf
-                    <div class="mb-4">
-                        <label for="loginEmail" class="block text-gray-700 font-semibold">Email</label>
-                        <input type="email" id="loginEmail" name="email"
-                            class="w-full p-3 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-                            placeholder="Email" required>
-                    </div>
-                    <div class="mb-4">
-                        <label for="loginPassword" class="block text-gray-700 font-semibold">Password</label>
-                        <input type="password" id="loginPassword" name="password"
-                            class="w-full p-3 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-                            placeholder="Password" required>
-                    </div>
-                    <div class="text-right">
-                        <button type="submit"
-                            class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition duration-300">
-                            Login
-                        </button>
-                    </div>
-                </form>
-
-                <!-- Form Register -->
-                <form action="{{ route('register') }}" method="POST" x-show="!isLogin"
-                    @submit.prevent="$el.submit()" x-cloak>
-                    @csrf
-                    <div class="mb-4">
-                        <label for="registerName" class="block text-gray-700 font-semibold">Nama</label>
-                        <input type="text" id="registerName" name="name"
-                            class="w-full p-3 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-                            placeholder="Nama" required>
-                    </div>
-                    <div class="mb-4">
-                        <label for="registerEmail" class="block text-gray-700 font-semibold">Email</label>
-                        <input type="email" id="registerEmail" name="email"
-                            class="w-full p-3 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-                            placeholder="Email" required>
-                    </div>
-                    <div class="mb-4">
-                        <label for="registerPassword" class="block text-gray-700 font-semibold">Password</label>
-                        <input type="password" id="registerPassword" name="password"
-                            class="w-full p-3 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-                            placeholder="Password" required>
-                    </div>
-                    <div class="mb-4">
-                        <label for="registerPhone" class="block text-gray-700 font-semibold">Nomor Telepon</label>
-                        <input type="text" id="registerPhone" name="phone"
-                            class="w-full p-3 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-                            placeholder="Nomor Telepon" required>
-                    </div>
-                    <div class="mb-4">
-                        <label for="registerAddress" class="block text-gray-700 font-semibold">Alamat</label>
-                        <textarea id="registerAddress" name="address"
-                            class="w-full p-3 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-                            placeholder="Alamat" rows="3" required></textarea>
-                    </div>
-                    <div class="text-right">
-                        <button type="submit"
-                            class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition duration-300">
-                            Register
-                        </button>
-                    </div>
-                </form>
-            </div>
+            </form>
+            <p class="mt-4 text-sm text-blue-600 cursor-pointer" @click="loginModal = false; registerModal = true;">
+                Belum punya akun? Register</p>
         </div>
     </div>
 
+    <!-- Modal Register (menggunakan Tailwind CSS & Alpine.js) -->
+    <div x-show="registerModal" x-cloak class="fixed inset-0 z-50 flex items-center justify-center">
+        <!-- Overlay -->
+        <div class="fixed inset-0 bg-gray-900 opacity-50" @click="registerModal = false"></div>
+        <!-- Modal Content -->
+        <div class="bg-white rounded-lg shadow-lg z-50 p-6 w-full max-w-md mx-auto">
+            <h2 class="text-2xl font-bold mb-4">Register</h2>
+            <form action="{{ route('register') }}" method="POST">
+                @csrf
+                <div class="mb-4">
+                    <label class="block text-gray-700 text-sm font-bold mb-2" for="name">Nama</label>
+                    <input type="text" name="name" id="name" required
+                        class="w-full px-3 py-2 border rounded focus:outline-none focus:ring focus:border-blue-300">
+                </div>
+                <div class="mb-4">
+                    <label class="block text-gray-700 text-sm font-bold mb-2" for="register_email">Email</label>
+                    <input type="email" name="email" id="register_email" required
+                        class="w-full px-3 py-2 border rounded focus:outline-none focus:ring focus:border-blue-300">
+                </div>
+                <div class="mb-4">
+                    <label class="block text-gray-700 text-sm font-bold mb-2" for="register_password">Password</label>
+                    <input type="password" name="password" id="register_password" required
+                        class="w-full px-3 py-2 border rounded focus:outline-none focus:ring focus:border-blue-300">
+                </div>
+                <div class="mb-4">
+                    <label class="block text-gray-700 text-sm font-bold mb-2" for="password_confirmation">Konfirmasi
+                        Password</label>
+                    <input type="password" name="password_confirmation" id="password_confirmation" required
+                        class="w-full px-3 py-2 border rounded focus:outline-none focus:ring focus:border-blue-300">
+                </div>
+                <div class="mb-4">
+                    <label class="block text-gray-700 text-sm font-bold mb-2" for="phone">Nomor Telepon</label>
+                    <input type="text" name="phone" id="phone" required
+                        class="w-full px-3 py-2 border rounded focus:outline-none focus:ring focus:border-blue-300">
+                </div>
+                <div class="mb-4">
+                    <label class="block text-gray-700 text-sm font-bold mb-2" for="address">Alamat</label>
+                    <textarea name="address" id="address" required
+                        class="w-full px-3 py-2 border rounded focus:outline-none focus:ring focus:border-blue-300"></textarea>
+                </div>
+                <div class="flex items-center justify-between">
+                    <button type="submit"
+                        class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition duration-200">
+                        Register
+                    </button>
+                    <button type="button" @click="registerModal = false"
+                        class="text-gray-600 hover:text-gray-800 focus:outline-none">
+                        Batal
+                    </button>
+                </div>
+            </form>
+            <p class="mt-4 text-sm text-blue-600 cursor-pointer" @click="registerModal = false; loginModal = true;">
+                Sudah punya akun? Login</p>
+        </div>
+    </div>
+
+    <!-- Notifikasi SweetAlert2 berdasarkan flash session -->
+    @if (session('success_register'))
+        <script>
+            Swal.fire({
+                icon: 'success',
+                title: 'Pendaftaran Berhasil',
+                text: '{{ session('success_register') }}',
+                timer: 3000,
+                showConfirmButton: false
+            });
+        </script>
+    @endif
+
+    @if (session('success_login'))
+        <script>
+            Swal.fire({
+                icon: 'success',
+                title: 'Login Berhasil',
+                text: '{{ session('success_login') }}',
+                timer: 1000,
+                showConfirmButton: false
+            });
+        </script>
+    @endif
+
+    @if (session('success_logout'))
+        <script>
+            Swal.fire({
+                icon: 'success',
+                title: 'Logout Berhasil',
+                text: '{{ session('success_logout') }}',
+                timer: 1000,
+                showConfirmButton: false
+            });
+        </script>
+    @endif
+
+    @if (session('error'))
+        <script>
+            Swal.fire({
+                icon: 'error',
+                title: 'Terjadi Kesalahan',
+                text: '{{ session('error') }}',
+                timer: 1000,
+                showConfirmButton: false
+            });
+        </script>
+    @endif
 
 </body>
 
