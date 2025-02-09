@@ -131,4 +131,42 @@ class AuthController extends Controller
 
         return view('admin.dashboard', compact('totalProducts', 'pendingOrders', 'totalSales', 'recentOrders'));
     }
+
+    public function switchAccount(Request $request, $id) {
+        try {
+            $user = Auth::user();
+            $role = Auth::user()->role;
+            if ($user && $role == 'admin') {
+                // simpan id pengguna asli di session sebelum switch
+                session(['original_user_id' => $user->id]);
+    
+                // login sebagai user lain dengan id yang dimasukkan
+                auth()->guard('web')->loginUsingId($id);
+    
+                // redirect ke halaman landing atau halaman lainnya
+                return redirect()->route('landing');
+            }
+        } catch (\Exception $e) {
+            // jika bukan admin, tampilkan error 403
+            abort(403);
+        }
+
+    }
+
+    public function switchBack() {
+        if (session()->has('original_user_id')) {
+            // ambil id user asli dan login kembali sebagai admin
+            $originalUserId = session('original_user_id');
+            auth()->guard('web')->loginUsingId($originalUserId);
+
+            // hapus id user asli dari session
+            session()->forget('original_user_id');
+
+            // redirect kembali ke halaman dashboard
+            return redirect()->route('admin.dashboard');
+        }
+
+        // jika tidak ada id asli di session, tampilkan erro 403
+        abort(403);
+    }
 }

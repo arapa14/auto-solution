@@ -39,6 +39,13 @@
                     Jasa Perbaikan Mobil
                 </a>
                 @auth
+                    <!-- Jika admin sudah switch, tampilkan tombol Switch Back -->
+                    @if (session()->has('original_user_id'))
+                        <a href="{{ route('switch-back') }}"
+                            class="text-green-600 hover:text-green-800 border-b-2 border-green-600">
+                            Switch Back
+                        </a>
+                    @endif
                     <!-- Jika sudah login, tampilkan tombol Logout -->
                     <form action="{{ route('logout') }}" method="POST" class="inline">
                         @csrf
@@ -85,6 +92,13 @@
                     </li>
                     @auth
                         <li>
+                            <!-- Jika admin sudah switch, tampilkan tombol Switch Back -->
+                            @if (session()->has('original_user_id'))
+                                <a href="{{ route('switch-back') }}"
+                                    class="text-green-600 hover:text-green-800 border-b-2 border-green-600">
+                                    Switch Back
+                                </a>
+                            @endif
                             <form action="{{ route('logout') }}" method="POST">
                                 @csrf
                                 <button type="submit"

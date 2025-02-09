@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ProductController;
+use App\Http\Controllers\UserController;
 use App\Http\Middleware\isAdmin;
 use App\Http\Middleware\isUser;
 use App\Models\Order;
@@ -31,9 +32,12 @@ Route::get('/service', function () {
     return view('service');
 })->name('service');
 
+Route::get('/switch/{id}', [AuthController::class, 'switchAccount'])->name('switch-account');
+Route::get('/switch-back', [AuthController::class, 'switchBack'])->name('switch-back');
+
 //Route untuk admin
 Route::middleware(['auth', 'isAdmin'])->group(function () {
-    Route::get('/admin',[AuthController::class, 'admin'])->name('admin.dashboard');
+    Route::get('/admin', [AuthController::class, 'admin'])->name('admin.dashboard');
 
     // Product
     Route::get('/product', [ProductController::class, 'index'])->name('admin.products');
@@ -45,19 +49,21 @@ Route::middleware(['auth', 'isAdmin'])->group(function () {
     Route::delete('/products/{product}', [ProductController::class, 'destroy'])->name('admin.products.destroy');
 
 
-    Route::get('/order', function() {
+    Route::get('/order', function () {
         return view('admin.dashboard');
     })->name('admin.orders');
 
-    Route::get('/services', function() {
+    Route::get('/services', function () {
         return view('admin.dashboard');
     })->name('admin.services');
 
-    Route::get('/user', function() {
-        return view('admin.dashboard');
-    })->name('admin.users');
+    // User Management
+    Route::get('/users', [UserController::class, 'index'])->name('admin.users');
+    Route::post('/users', [UserController::class, 'store'])->name('admin.users.store');
+    Route::put('/users/{user}', [UserController::class, 'update'])->name('admin.users.update');
+    Route::delete('/users/{user}', [UserController::class, 'destroy'])->name('admin.users.destroy');
 
-    Route::get('/report', function() {
+    Route::get('/report', function () {
         return view('admin.dashboard');
     })->name('admin.reports');
 });
