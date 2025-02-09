@@ -186,6 +186,17 @@
             </div>
             <!-- Body Modal -->
             <div class="p-4">
+                <!-- Tampilkan Semua Error Jika Ada -->
+                @if ($errors->any())
+                    <div class="bg-red-500 text-white p-3 rounded mb-4">
+                        <ul>
+                            @foreach ($errors->all() as $error)
+                                <li>{{ $error }}</li>
+                            @endforeach
+                        </ul>
+                    </div>
+                @endif
+
                 <!-- Tab Navigation -->
                 <div class="mb-4 flex">
                     <button @click="isLogin = true"
@@ -199,17 +210,20 @@
                         Register
                     </button>
                 </div>
+
                 <!-- Form Login -->
-                <form x-show="isLogin" @submit.prevent="/* Proses login */" x-cloak>
+                <form action="{{ route('login') }}" method="POST" x-show="isLogin" @submit.prevent="$el.submit()"
+                    x-cloak>
+                    @csrf
                     <div class="mb-4">
                         <label for="loginEmail" class="block text-gray-700 font-semibold">Email</label>
-                        <input type="email" id="loginEmail"
+                        <input type="email" id="loginEmail" name="email"
                             class="w-full p-3 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
                             placeholder="Email" required>
                     </div>
                     <div class="mb-4">
                         <label for="loginPassword" class="block text-gray-700 font-semibold">Password</label>
-                        <input type="password" id="loginPassword"
+                        <input type="password" id="loginPassword" name="password"
                             class="w-full p-3 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
                             placeholder="Password" required>
                     </div>
@@ -220,35 +234,38 @@
                         </button>
                     </div>
                 </form>
+
                 <!-- Form Register -->
-                <form x-show="!isLogin" @submit.prevent="/* Proses register */" x-cloak>
+                <form action="{{ route('register') }}" method="POST" x-show="!isLogin"
+                    @submit.prevent="$el.submit()" x-cloak>
+                    @csrf
                     <div class="mb-4">
                         <label for="registerName" class="block text-gray-700 font-semibold">Nama</label>
-                        <input type="text" id="registerName"
+                        <input type="text" id="registerName" name="name"
                             class="w-full p-3 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
                             placeholder="Nama" required>
                     </div>
                     <div class="mb-4">
                         <label for="registerEmail" class="block text-gray-700 font-semibold">Email</label>
-                        <input type="email" id="registerEmail"
+                        <input type="email" id="registerEmail" name="email"
                             class="w-full p-3 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
                             placeholder="Email" required>
                     </div>
                     <div class="mb-4">
                         <label for="registerPassword" class="block text-gray-700 font-semibold">Password</label>
-                        <input type="password" id="registerPassword"
+                        <input type="password" id="registerPassword" name="password"
                             class="w-full p-3 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
                             placeholder="Password" required>
                     </div>
                     <div class="mb-4">
                         <label for="registerPhone" class="block text-gray-700 font-semibold">Nomor Telepon</label>
-                        <input type="text" id="registerPhone"
+                        <input type="text" id="registerPhone" name="phone"
                             class="w-full p-3 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
                             placeholder="Nomor Telepon" required>
                     </div>
                     <div class="mb-4">
                         <label for="registerAddress" class="block text-gray-700 font-semibold">Alamat</label>
-                        <textarea id="registerAddress"
+                        <textarea id="registerAddress" name="address"
                             class="w-full p-3 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
                             placeholder="Alamat" rows="3" required></textarea>
                     </div>
@@ -262,6 +279,7 @@
             </div>
         </div>
     </div>
+
 
 </body>
 
