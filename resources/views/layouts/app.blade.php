@@ -32,11 +32,7 @@
                 </a>
                 <a href="{{ route('purchase') }}"
                     class="{{ request()->routeIs('purchase') ? 'text-blue-600 border-b-2 border-blue-600' : 'text-gray-600 hover:text-gray-800' }}">
-                    Pembelian Alat-Alat Mobil
-                </a>
-                <a href="{{ route('sale') }}"
-                    class="{{ request()->routeIs('sale') ? 'text-blue-600 border-b-2 border-blue-600' : 'text-gray-600 hover:text-gray-800' }}">
-                    Penjualan Alat-Alat Mobil
+                    Alat-Alat Mobil
                 </a>
                 <a href="{{ route('service') }}"
                     class="{{ request()->routeIs('service') ? 'text-blue-600 border-b-2 border-blue-600' : 'text-gray-600 hover:text-gray-800' }}">
@@ -78,13 +74,7 @@
                     <li>
                         <a href="{{ route('purchase') }}"
                             class="block px-4 py-2 {{ request()->routeIs('purchase') ? 'text-blue-600 bg-gray-100' : 'text-gray-600 hover:bg-gray-100' }}">
-                            Pembelian Alat-Alat Mobil
-                        </a>
-                    </li>
-                    <li>
-                        <a href="{{ route('sale') }}"
-                            class="block px-4 py-2 {{ request()->routeIs('sale') ? 'text-blue-600 bg-gray-100' : 'text-gray-600 hover:bg-gray-100' }}">
-                            Penjualan Alat-Alat Mobil
+                            Alat-Alat Mobil
                         </a>
                     </li>
                     <li>

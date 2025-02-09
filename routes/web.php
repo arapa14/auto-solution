@@ -27,10 +27,6 @@ Route::get('/purchase', function () {
     return view('purchase', compact('products', 'orders'));
 })->name('purchase');
 
-Route::get('/sale', function () {
-    return view('sale');
-})->name('sale');
-
 Route::get('/service', function () {
     return view('service');
 })->name('service');
@@ -39,21 +35,28 @@ Route::get('/service', function () {
 Route::middleware(['auth', 'isAdmin'])->group(function () {
     Route::get('/admin',[AuthController::class, 'admin'])->name('admin.dashboard');
 
-    Route::get('/product', function() {
-        return view('admin.dashboard');
-    })->name('admin.products');
+    // Product
+    Route::get('/product', [ProductController::class, 'index'])->name('admin.products');
+    // Menyimpan produk baru (Store)
+    Route::post('/products', [ProductController::class, 'store'])->name('admin.products.store');
+    // Update produk yang ada (Update) – gunakan binding model
+    Route::put('/products/{product}', [ProductController::class, 'update'])->name('admin.products.update');
+    // Hapus produk (Destroy)
+    Route::delete('/products/{product}', [ProductController::class, 'destroy'])->name('admin.products.destroy');
+
+
     Route::get('/order', function() {
         return view('admin.dashboard');
     })->name('admin.orders');
-    Route::get('/sales', function() {
-        return view('admin.dashboard');
-    })->name('admin.sales');
+
     Route::get('/services', function() {
         return view('admin.dashboard');
     })->name('admin.services');
+
     Route::get('/user', function() {
         return view('admin.dashboard');
     })->name('admin.users');
+
     Route::get('/report', function() {
         return view('admin.dashboard');
     })->name('admin.reports');

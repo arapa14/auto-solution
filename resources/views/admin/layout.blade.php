@@ -12,6 +12,7 @@
     <script src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
     <!-- SweetAlert2 -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     <style>
         [x-cloak] {
             display: none !important;
@@ -55,10 +56,6 @@
                         class="block py-2.5 px-4 rounded transition duration-200 {{ request()->routeIs('admin.orders') ? 'bg-blue-100 text-blue-600 font-semibold' : 'hover:bg-blue-100 hover:text-blue-700 text-gray-700' }}">
                         Manage Orders
                     </a>
-                    <a href="{{ route('admin.sales') }}"
-                        class="block py-2.5 px-4 rounded transition duration-200 {{ request()->routeIs('admin.sales') ? 'bg-blue-100 text-blue-600 font-semibold' : 'hover:bg-blue-100 hover:text-blue-700 text-gray-700' }}">
-                        Manage Sales
-                    </a>
                     <a href="{{ route('admin.services') }}"
                         class="block py-2.5 px-4 rounded transition duration-200 {{ request()->routeIs('admin.services') ? 'bg-blue-100 text-blue-600 font-semibold' : 'hover:bg-blue-100 hover:text-blue-700 text-gray-700' }}">
                         Manage Services
@@ -98,17 +95,13 @@
                     class="block py-2.5 px-4 rounded transition duration-200 {{ request()->routeIs('admin.products') ? 'bg-blue-100 text-blue-600 font-semibold' : 'hover:bg-blue-100 hover:text-blue-700 text-gray-700' }}">
                     Manage Products
                 </a>
-                <a href="{{ route('admin.orders') }}"
-                    class="block py-2.5 px-4 rounded transition duration-200 {{ request()->routeIs('admin.orders') ? 'bg-blue-100 text-blue-600 font-semibold' : 'hover:bg-blue-100 hover:text-blue-700 text-gray-700' }}">
-                    Manage Orders
-                </a>
-                <a href="{{ route('admin.sales') }}"
-                    class="block py-2.5 px-4 rounded transition duration-200 {{ request()->routeIs('admin.sales') ? 'bg-blue-100 text-blue-600 font-semibold' : 'hover:bg-blue-100 hover:text-blue-700 text-gray-700' }}">
-                    Manage Sales
-                </a>
                 <a href="{{ route('admin.services') }}"
                     class="block py-2.5 px-4 rounded transition duration-200 {{ request()->routeIs('admin.services') ? 'bg-blue-100 text-blue-600 font-semibold' : 'hover:bg-blue-100 hover:text-blue-700 text-gray-700' }}">
                     Manage Services
+                </a>
+                <a href="{{ route('admin.orders') }}"
+                    class="block py-2.5 px-4 rounded transition duration-200 {{ request()->routeIs('admin.orders') ? 'bg-blue-100 text-blue-600 font-semibold' : 'hover:bg-blue-100 hover:text-blue-700 text-gray-700' }}">
+                    Manage Orders
                 </a>
                 <a href="{{ route('admin.users') }}"
                     class="block py-2.5 px-4 rounded transition duration-200 {{ request()->routeIs('admin.users') ? 'bg-blue-100 text-blue-600 font-semibold' : 'hover:bg-blue-100 hover:text-blue-700 text-gray-700' }}">
