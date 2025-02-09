@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Order;
+use App\Models\Product;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
@@ -112,5 +114,21 @@ class AuthController extends Controller
         }
 
         return redirect()->back();
+    }
+
+    public function admin()
+    {
+        $totalProducts = Product::count();
+        $pendingOrders = Order::where('status', 'pending')->count();
+        $totalSales = Order::where('status', 'completed')->sum('total_price');
+        $recentOrders = Order::with('user')
+                            ->orderBy('created_at', 'desc')
+                            ->limit(5)
+                            ->get();
+
+        // Set flash session untuk notifikasi login sukses (jika diperlukan)
+        session()->flash('success_login', 'Selamat datang, Admin!');
+
+        return view('admin.dashboard', compact('totalProducts', 'pendingOrders', 'totalSales', 'recentOrders'));
     }
 }
