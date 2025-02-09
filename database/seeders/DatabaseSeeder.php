@@ -32,5 +32,7 @@ class DatabaseSeeder extends Seeder
             'phone' => '081210068653',
             'address' => 'pt. rumah logic technology',
         ]);
+
+        $this->call(ProductSeeder::class);
     }
 }

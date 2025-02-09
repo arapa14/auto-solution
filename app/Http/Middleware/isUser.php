@@ -16,10 +16,14 @@ class isUser
      */
     public function handle(Request $request, Closure $next): Response
     {
-        if (Auth::user() && Auth::user()->role === 'user') {
-            return $next($request);
+        // Jika user belum login
+        if (!Auth::check()) {
+            // Set flash message untuk notifikasi login terlebih dahulu
+            session()->flash('error', 'Silakan login terlebih dahulu untuk membeli produk.');
+            // Redirect ke halaman landing (atau halaman login, sesuai kebutuhan)
+            return redirect()->route('landing');
         }
 
-        return redirect('/landing')->withErrors(['access' => 'Access Denied']);
+        return $next($request);
     }
 }

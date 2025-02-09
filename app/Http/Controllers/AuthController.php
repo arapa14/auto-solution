@@ -111,6 +111,6 @@ class AuthController extends Controller
             return redirect()->route('admin.dashboard');
         }
 
-        return redirect()->route('landing');
+        return redirect()->back();
     }
 }
