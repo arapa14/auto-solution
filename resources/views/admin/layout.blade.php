@@ -52,13 +52,13 @@
                         class="block py-2.5 px-4 rounded transition duration-200 {{ request()->routeIs('admin.products') ? 'bg-blue-100 text-blue-600 font-semibold' : 'hover:bg-blue-100 hover:text-blue-700 text-gray-700' }}">
                         Manage Products
                     </a>
-                    <a href="{{ route('admin.orders') }}"
-                        class="block py-2.5 px-4 rounded transition duration-200 {{ request()->routeIs('admin.orders') ? 'bg-blue-100 text-blue-600 font-semibold' : 'hover:bg-blue-100 hover:text-blue-700 text-gray-700' }}">
-                        Manage Orders
-                    </a>
                     <a href="{{ route('admin.services') }}"
                         class="block py-2.5 px-4 rounded transition duration-200 {{ request()->routeIs('admin.services') ? 'bg-blue-100 text-blue-600 font-semibold' : 'hover:bg-blue-100 hover:text-blue-700 text-gray-700' }}">
                         Manage Services
+                    </a>
+                    <a href="{{ route('admin.orders') }}"
+                        class="block py-2.5 px-4 rounded transition duration-200 {{ request()->routeIs('admin.orders') ? 'bg-blue-100 text-blue-600 font-semibold' : 'hover:bg-blue-100 hover:text-blue-700 text-gray-700' }}">
+                        Manage Orders
                     </a>
                     <a href="{{ route('admin.users') }}"
                         class="block py-2.5 px-4 rounded transition duration-200 {{ request()->routeIs('admin.users') ? 'bg-blue-100 text-blue-600 font-semibold' : 'hover:bg-blue-100 hover:text-blue-700 text-gray-700' }}">

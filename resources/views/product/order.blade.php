@@ -43,7 +43,7 @@
             Swal.fire({
                 icon: 'success',
                 title: 'Pemesanan Berhasil',
-                text: '{{ session('success') }}',
+                text: "{{ session('success') }}",
                 timer: 3000,
                 showConfirmButton: false
             });
@@ -55,7 +55,7 @@
             Swal.fire({
                 icon: 'error',
                 title: 'Pemesanan Gagal',
-                text: '{{ session('error') }}',
+                text: "{{ session('error') }}",
                 timer: 3000,
                 showConfirmButton: false
             });
