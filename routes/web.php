@@ -4,6 +4,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ProductController;
 use App\Http\Middleware\isAdmin;
 use App\Http\Middleware\isUser;
+use App\Models\Order;
 use App\Models\Product;
 use Illuminate\Support\Facades\Route;
 
@@ -17,7 +18,13 @@ Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
 Route::get('/purchase', function() {
     $products = Product::all();
-    return view('purchase', compact('products'));
+    $orders = [];
+    if (auth()->check()) {
+        $orders = Order::with('order_products.product')
+            ->where('user_id', auth()->id())
+            ->get();
+    }
+    return view('purchase', compact('products', 'orders'));
 })->name('purchase');
 
 Route::get('/sale', function() {
@@ -36,5 +43,8 @@ Route::middleware(['auth', 'isAdmin'])->group(function() {
 });
 
 Route::middleware(['auth', 'isUser'])->group(function() {
-    Route::get('/product/{id}', [ProductController::class, 'show'])->name('product.detail');
-});
+// Menampilkan halaman detail produk (form pemesanan)
+Route::get('/product/{id}', [ProductController::class, 'show'])->name('product.detail');
+
+// Memproses pemesanan produk (form submit)
+Route::post('/product/{id}/order', [ProductController::class, 'order'])->name('product.order');});
