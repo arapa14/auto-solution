@@ -12,7 +12,27 @@ class OrderController extends Controller
      */
     public function index()
     {
-        //
+        // Mengambil order beserta data user (customer)
+        $orders = Order::with('user')->orderBy('created_at', 'desc')->get();
+        return view('admin.orders', compact('orders'));
+    }
+
+    /**
+     * Update status order.
+     */
+    public function update(Request $request, $id)
+    {
+        // Validasi input status
+        $request->validate([
+            'status' => 'required|in:pending,approved,rejected,completed',
+        ]);
+
+        $order = Order::findOrFail($id);
+        $order->status = $request->status;
+        $order->save();
+
+        // Mengembalikan response JSON agar bisa diproses oleh AJAX
+        return response()->json(['success' => true, 'message' => 'Order status updated successfully.']);
     }
 
     /**
@@ -32,27 +52,22 @@ class OrderController extends Controller
     }
 
     /**
-     * Display the specified resource.
+     * Menampilkan detail order.
      */
-    public function show(Order $order)
+    public function show($id)
     {
-        //
+        // Jika terdapat relasi detail order, misalnya orderDetails
+        $order = Order::with('user', 'orderDetails')->findOrFail($id);
+        return view('admin.orders.show', compact('order'));
     }
 
     /**
-     * Show the form for editing the specified resource.
+     * Menampilkan form edit order (jika diperlukan fitur edit selain update status).
      */
-    public function edit(Order $order)
+    public function edit($id)
     {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, Order $order)
-    {
-        //
+        $order = Order::findOrFail($id);
+        return view('admin.orders.edit', compact('order'));
     }
 
     /**

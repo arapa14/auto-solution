@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Order;
 use App\Models\Product;
+use App\Models\Service;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
@@ -119,6 +120,9 @@ class AuthController extends Controller
     public function admin()
     {
         $totalProducts = Product::count();
+        $totalServices = Service::count();
+        $totalUsers = User::where('role', 'user')->count();
+        $totalComplete = Order::where('status', 'completed')->count();
         $pendingOrders = Order::where('status', 'pending')->count();
         $totalSales = Order::where('status', 'completed')->sum('total_price');
         $recentOrders = Order::with('user')
@@ -129,7 +133,7 @@ class AuthController extends Controller
         // Set flash session untuk notifikasi login sukses (jika diperlukan)
         session()->flash('success_login', 'Selamat datang, Admin!');
 
-        return view('admin.dashboard', compact('totalProducts', 'pendingOrders', 'totalSales', 'recentOrders'));
+        return view('admin.dashboard', compact('totalProducts', 'pendingOrders', 'totalSales', 'recentOrders', 'totalServices', 'totalUsers', 'totalComplete'));
     }
 
     public function switchAccount(Request $request, $id) {

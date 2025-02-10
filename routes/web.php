@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\OrderController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\ServiceController;
 use App\Http\Controllers\UserController;
@@ -48,7 +49,7 @@ Route::get('/switch-back', [AuthController::class, 'switchBack'])->name('switch-
 Route::middleware(['auth', 'isAdmin'])->group(function () {
     Route::get('/admin', [AuthController::class, 'admin'])->name('admin.dashboard');
 
-    // Product
+    // Product Management
     Route::get('/product', [ProductController::class, 'index'])->name('admin.products');
     // Menyimpan produk baru (Store)
     Route::post('/products', [ProductController::class, 'store'])->name('admin.products.store');
@@ -57,16 +58,15 @@ Route::middleware(['auth', 'isAdmin'])->group(function () {
     // Hapus produk (Destroy)
     Route::delete('/products/{product}', [ProductController::class, 'destroy'])->name('admin.products.destroy');
 
-
-    Route::get('/order', function () {
-        return view('admin.dashboard');
-    })->name('admin.orders');
-
     // Service Management
     Route::get('/services', [ServiceController::class, 'index'])->name('admin.services');
     Route::post('/services', [ServiceController::class, 'store'])->name('admin.services.store');
     Route::put('/services/{id}', [ServiceController::class, 'update'])->name('admin.services.update');
     Route::delete('/services/{id}', [ServiceController::class, 'destroy'])->name('admin.services.destroy');
+
+    // Order Management
+    Route::get('orders', [OrderController::class, 'index'])->name('admin.orders');
+    Route::put('orders/{id}', [OrderController::class, 'update'])->name('admin.orders.update');
 
     // User Management
     Route::get('/users', [UserController::class, 'index'])->name('admin.users');
