@@ -119,34 +119,113 @@ class AuthController extends Controller
 
     public function admin()
     {
-        $totalProducts = Product::count();
-        $totalServices = Service::count();
-        $totalUsers = User::where('role', 'user')->count();
-        $totalComplete = Order::where('status', 'completed')->count();
-        $pendingOrders = Order::where('status', 'pending')->count();
-        $totalSales = Order::where('status', 'completed')->sum('total_price');
-        $recentOrders = Order::with('user')
-                            ->orderBy('created_at', 'desc')
-                            ->limit(5)
-                            ->get();
+        // Statistik Utama
+        $totalProducts  = Product::count();
+        $totalServices  = Service::count();
+        $totalUsers     = User::where('role', 'user')->count();
+        $totalComplete  = Order::where('status', 'completed')->count();
+        $pendingOrders  = Order::where('status', 'pending')->count();
+        $totalSales     = Order::where('status', 'completed')->sum('total_price');
+        $recentOrders   = Order::with('user')->orderBy('created_at', 'desc')->limit(5)->get();
 
-        // Set flash session untuk notifikasi login sukses (jika diperlukan)
+        // Data untuk Sales Overview Chart (6 bulan terakhir)
+        $salesData = Order::selectRaw("DATE_FORMAT(created_at, '%M') as month, SUM(total_price) as total")
+            ->where('status', 'completed')
+            ->groupBy('month')
+            ->orderByRaw("MIN(created_at) ASC")
+            ->limit(6)
+            ->get();
+
+        $salesChartLabels = $salesData->pluck('month');
+        $salesChartData   = $salesData->pluck('total');
+
+        /*
+     * Data Laporan Penjualan Berdasarkan Periode
+     */
+
+        // 1. Laporan Harian (misal: 7 hari terakhir)
+        $dailySalesData = Order::selectRaw("DATE_FORMAT(created_at, '%d %b') as day, SUM(total_price) as total")
+            ->where('status', 'completed')
+            ->where('created_at', '>=', now()->subDays(7))
+            ->groupBy('day')
+            ->orderByRaw("MIN(created_at) ASC")
+            ->get();
+
+        $dailySalesChartLabels = $dailySalesData->pluck('day');
+        $dailySalesChartData   = $dailySalesData->pluck('total');
+
+        // 2. Laporan Mingguan (misal: 4 minggu terakhir)
+        // Menggunakan YEARWEEK() untuk mengelompokkan data berdasarkan minggu
+        $weeklySalesData = Order::selectRaw("YEARWEEK(created_at, 1) as week, SUM(total_price) as total")
+            ->where('status', 'completed')
+            ->where('created_at', '>=', now()->subWeeks(4))
+            ->groupBy('week')
+            ->orderByRaw("MIN(created_at) ASC")
+            ->get();
+
+        $weeklySalesChartLabels = $weeklySalesData->pluck('week');
+        $weeklySalesChartData   = $weeklySalesData->pluck('total');
+
+        // 3. Laporan Bulanan (misal: 12 bulan terakhir)
+        $monthlySalesData = Order::selectRaw("DATE_FORMAT(created_at, '%M %Y') as month, SUM(total_price) as total")
+            ->where('status', 'completed')
+            ->where('created_at', '>=', now()->subMonths(12))
+            ->groupBy('month')
+            ->orderByRaw("MIN(created_at) ASC")
+            ->get();
+
+        $monthlySalesChartLabels = $monthlySalesData->pluck('month');
+        $monthlySalesChartData   = $monthlySalesData->pluck('total');
+
+        // 4. Laporan Tahunan (seluruh tahun yang ada pada data)
+        $yearlySalesData = Order::selectRaw("YEAR(created_at) as year, SUM(total_price) as total")
+            ->where('status', 'completed')
+            ->groupBy('year')
+            ->orderByRaw("MIN(created_at) ASC")
+            ->get();
+
+        $yearlySalesChartLabels = $yearlySalesData->pluck('year');
+        $yearlySalesChartData   = $yearlySalesData->pluck('total');
+
+        // Flash message jika diperlukan
         session()->flash('success_login', 'Selamat datang, Admin!');
 
-        return view('admin.dashboard', compact('totalProducts', 'pendingOrders', 'totalSales', 'recentOrders', 'totalServices', 'totalUsers', 'totalComplete'));
+        return view('admin.dashboard', compact(
+            'totalProducts',
+            'totalServices',
+            'totalUsers',
+            'totalComplete',
+            'pendingOrders',
+            'totalSales',
+            'recentOrders',
+            'salesChartLabels',
+            'salesChartData',
+            'dailySalesChartLabels',
+            'dailySalesChartData',
+            'weeklySalesChartLabels',
+            'weeklySalesChartData',
+            'monthlySalesChartLabels',
+            'monthlySalesChartData',
+            'yearlySalesChartLabels',
+            'yearlySalesChartData'
+        ));
     }
 
-    public function switchAccount(Request $request, $id) {
+
+
+
+    public function switchAccount(Request $request, $id)
+    {
         try {
             $user = Auth::user();
             $role = Auth::user()->role;
             if ($user && $role == 'admin') {
                 // simpan id pengguna asli di session sebelum switch
                 session(['original_user_id' => $user->id]);
-    
+
                 // login sebagai user lain dengan id yang dimasukkan
                 auth()->guard('web')->loginUsingId($id);
-    
+
                 // redirect ke halaman landing atau halaman lainnya
                 return redirect()->route('landing');
             }
@@ -154,10 +233,10 @@ class AuthController extends Controller
             // jika bukan admin, tampilkan error 403
             abort(403);
         }
-
     }
 
-    public function switchBack() {
+    public function switchBack()
+    {
         if (session()->has('original_user_id')) {
             // ambil id user asli dan login kembali sebagai admin
             $originalUserId = session('original_user_id');
